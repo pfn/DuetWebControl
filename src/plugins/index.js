@@ -111,4 +111,14 @@ export default [
 		)
 	}),
 	// Add your own plugins here during development...
+	new DwcPlugin({
+		id: 'JumpShip',
+		name: 'Jump Ship',
+		author: 'Perry Nguyen',
+		version,
+		loadDwcResources: () => import(
+			/* webpackChunkName: "JumpShip" */
+			'./JumpShip/index.js'
+		)
+	}),
 ]

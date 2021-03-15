@@ -24,8 +24,11 @@ const keysToIgnore = ['httpEndpoints', 'messages', 'plugins', 'userSessions', 'u
 const keysToQuery = Object.keys(DefaultMachineModel).filter(key => keysToIgnore.indexOf(key) === -1);
 
 export default class PollConnector extends BaseConnector {
+        static rrPath() {
+                return !window.DWC_PROXY_PATH ? '/cube/' : ("/" + window.DWC_PROXY_PATH + "/");
+        }
 	static async connect(hostname, username, password) {
-		const response = await BaseConnector.request('GET', `${location.protocol}//${hostname}/rr_connect`, {
+		const response = await BaseConnector.request('GET', `${location.protocol}//${hostname}${PollConnector.rrPath()}rr_connect`, {
 			password,
 			time: timeToStr(new Date())
 		});
@@ -198,10 +201,7 @@ export default class PollConnector extends BaseConnector {
 		super('poll', hostname);
 		this.password = password;
 		this.boardType = responseData.boardType;
-		this.requestBase = `${location.protocol}//${hostname + process.env.BASE_URL}`;
-		if (!this.requestBase.endsWith('/')) {
-			this.requestBase += '/';
-		}
+		this.requestBase = (hostname === location.host) ? `${location.protocol}//${hostname}${PollConnector.rrPath()}` : `http://${hostname}/`;
 		this.sessionTimeout = responseData.sessionTimeout;
 		this.apiLevel = responseData.apiLevel || 0;
 	}
@@ -238,7 +238,7 @@ export default class PollConnector extends BaseConnector {
 		this.lastSeq = 0;
 
 		// Attempt to reconnect
-		const response = await BaseConnector.request('GET', `${location.protocol}//${this.hostname}/rr_connect`, {
+		const response = await BaseConnector.request('GET', `${location.protocol}//${this.hostname}${PollConnector.rrPath()}rr_connect`, {
 			password: this.password,
 			time: timeToStr(new Date())
 		});
